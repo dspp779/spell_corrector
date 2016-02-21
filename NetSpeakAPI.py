@@ -14,10 +14,9 @@ class NetSpeak:
         return self.opener.open(url).read()
 
     def __rolling(self,url,maxfreq):
-        webdata = self.__getPageContent(url.replace("'","''")+"&maxfreq=%s" % maxfreq)
+        webdata = self.__getPageContent(url+"&maxfreq=%s" % maxfreq)
         if webdata:
             Result = [(data2[2],float(data2[1])) for data2 in [data.split("\t") for data in webdata.strip().split("\n")]]
-            print Result
             lastFreq = int(Result[-1][1])
             if lastFreq != maxfreq:
                 return Result + self.__rolling(url,lastFreq)
@@ -27,7 +26,7 @@ class NetSpeak:
             return []
 
     def search(self,query):
-        queries = query.split()
+        queries = query.lower().split()
         new_query = []
         for token in queries:
             if token.count("|") > 0:
@@ -38,7 +37,7 @@ class NetSpeak:
                 new_query.append(token)
         new_query = "+".join(new_query)
         url = "http://api.netspeak.org/netspeak3/search?query=%s" % (new_query.replace(" ","+"))
-        webdata = self.__getPageContent(url.replace("'","''"))
+        webdata = self.__getPageContent(url)
         if webdata:
             Result = [(data2[2],float(data2[1])) for data2 in [data.split("\t") for data in webdata.strip().split("\n")]]
             lastFreq = int(Result[-1][1])
@@ -50,18 +49,15 @@ class NetSpeak:
 if __name__ == "__main__":
 
     SE = NetSpeak()
-    # Search_Result = SE.search("approach that *")
-    # print Search_Result
-    # at * time
-    test = 'when the brake is finished'.split()
-    print test
-    # test = '? is finished'
-    # test = 'brake is finished'
+    tests = ['when the break is finished'.split()]
+    tests += ['? is finished'.split()]
+    tests += ['brake is finished'.split()]
 
-    for i in range(length(test) - 3):
-        print i
-        res = SE.search(test[i:i+3])
-        if res:
-            print '\n'.join([ '\t'.join([ str(y) for y in x]) for x in res ])
-        else:
-            print 'not found'
+    for test in tests:
+        for i in range(len(test) - 2):
+            res = SE.search(' '.join(test[i:i+3]))
+            if res:
+                print '\n'.join( '\t'.join([ str(y) for y in x]) for x in res )
+            else:
+                print 'not found'
+        print
