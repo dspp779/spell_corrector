@@ -24,6 +24,10 @@ class NetSpeak:
                 return []
         else:
             return []
+    
+    def __parseWebData(self, rowdata):
+        id, count, ngram = rowdata.split("\t")
+        return (ngram, float(count))
 
     def search(self,query):
         queries = query.lower().split()
@@ -39,7 +43,8 @@ class NetSpeak:
         url = "http://api.netspeak.org/netspeak3/search?query=%s" % (new_query.replace(" ","+"))
         webdata = self.__getPageContent(url)
         if webdata:
-            Result = [(data2[2],float(data2[1])) for data2 in [data.split("\t") for data in webdata.strip().split("\n")]]
+            # Result = [ (data2[2],float(data2[1])) for data2 in (data.split("\t") for data in webdata.strip().split("\n")) ]
+            Result = map(self.__parseWebData, webdata.strip().split("\n"))
             lastFreq = int(Result[-1][1])
             Result += self.__rolling(url,lastFreq)
             return Result
@@ -50,14 +55,14 @@ if __name__ == "__main__":
 
     SE = NetSpeak()
     tests = ['when the break is finished'.split()]
-    tests += ['? is finished'.split()]
-    tests += ['brake is finished'.split()]
+    # tests += ['? is finished'.split()]
+    # tests += ['brake is finished'.split()]
 
     for test in tests:
         for i in range(len(test) - 2):
             res = SE.search(' '.join(test[i:i+3]))
             if res:
-                print '\n'.join( '\t'.join([ str(y) for y in x]) for x in res )
+                print '\n'.join( '\t'.join( str(y) for y in x ) for x in res )
             else:
-                print 'not found'
+                print ' '.join(test[i:i+3]) + '\tnot found'
         print
