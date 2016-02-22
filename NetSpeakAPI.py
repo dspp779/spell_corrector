@@ -17,7 +17,7 @@ class NetSpeak:
         webdata = self.__getPageContent(url.replace("'","''")+"&maxfreq=%s" % maxfreq)
         if webdata:
             Result = [(data2[2],float(data2[1])) for data2 in [data.split("\t") for data in webdata.strip().split("\n")]]
-            print Result
+            # print Result
             lastFreq = int(Result[-1][1])
             if lastFreq != maxfreq:
                 return Result + self.__rolling(url,lastFreq)
@@ -58,10 +58,9 @@ if __name__ == "__main__":
     # test = '? is finished'
     # test = 'brake is finished'
 
-    for i in range(length(test) - 3):
-        print i
-        res = SE.search(test[i:i+3])
+    for i in range(len(test) - 2):
+        res = SE.search(' '.join(test[i:i+3]))
         if res:
-            print '\n'.join([ '\t'.join([ str(y) for y in x]) for x in res ])
+            print '\n'.join( '\t'.join(str(y) for y in x) for x in res )
         else:
-            print 'not found'
+            print ' '.join(test[i:i+3]) + '\tnot found'
